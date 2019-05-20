@@ -27,7 +27,7 @@ def getExamInfo(stu_id):
             info = text.string
             if(i == 2):
                 info = re.findall(r"\d+.\d+.\d+",text.string)[0]
-            tmp.append({topbar[i]:info})
+            tmp.append(info)
             i = i + 1
         result.append(tmp)
     # print result
