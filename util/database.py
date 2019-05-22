@@ -1,28 +1,65 @@
 #coding=utf-8
 
 import pymysql
+import json
+from datetime import datetime
+
+
 url = "134.175.104.191"
 pwd = "19972279999"
 user = "root"
 dbName = "HI_JHD"
 
 
-def getNewsList(start):
+def updateCoverImage():
     db = pymysql.connect(url,user,pwd,dbName)
     cursor = db.cursor()
-    sql = "SELECT title,number from newsInfo WHERE status = 1 ORDER BY time DESC"
+    sql = 'SELECT number,content FROM news WHERE type = "img" GROUP BY number'
+    try:
+        cursor.execute(sql)
+        result = cursor.fetchall()
+        # print result
+    except:
+        pass
+    for item in result:
+        sql = "UPDATE newsInfo SET coverimg = '%s' where number = '%s'" % (item[1],item[0])
+        print sql
+        try:
+            cursor.execute(sql)
+            db.commit()
+        except:
+            pass
+
+
+
+
+
+def getNewsList(start):
+    start = int(start)
+    db = pymysql.connect(url,user,pwd,dbName)
+    cursor = db.cursor()
+    sql = "SELECT title,number,time,coverimg from newsInfo WHERE status = 1 ORDER BY time DESC"
     newsList = []
     try:
         cursor.execute(sql)
         result = list(cursor.fetchall())
-        k = 0;
-        for i in range(start,start+20,1):
-            newsList[k] = result[i]
+        for i in range(start,start+10,1):
+            new = {}
+            title = result[i][0]
+            number = result[i][1]
+            time = result[i][2]
+            img = result[i][3]
+            new['title'] = title
+            new['number'] = number
+            new['time'] = str(time)
+            new['img'] = img
+            new['imgpath'] = 'noImg'
+            newsList.append(new)
     except:
         print "Get News List Faild"
 
-    return newsList
-
+    print newsList
+    return json.dumps(newsList)
 
 def getUnpushNews():
     db = pymysql.connect(url,user,pwd,dbName)
@@ -83,4 +120,6 @@ def test():
 
 
 if __name__ == "__main__":
-    getUnpushNews()
+    # getUnpushNews()
+    # getNewsList(0)
+    updateCoverImage()
