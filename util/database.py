@@ -7,8 +7,56 @@ user = "root"
 dbName = "HI_JHD"
 
 
-def pushNew(number,p,src,type):
-    pass
+def getNewsList(start):
+    db = pymysql.connect(url,user,pwd,dbName)
+    cursor = db.cursor()
+    sql = "SELECT title,number from newsInfo WHERE status = 1 ORDER BY time DESC"
+    newsList = []
+    try:
+        cursor.execute(sql)
+        result = list(cursor.fetchall())
+        k = 0;
+        for i in range(start,start+20,1):
+            newsList[k] = result[i]
+    except:
+        print "Get News List Faild"
+
+    return newsList
+
+
+def getUnpushNews():
+    db = pymysql.connect(url,user,pwd,dbName)
+    cursor = db.cursor()
+    sql = "SELECT number,url FROM newsInfo WHERE status = 0"
+    try:
+        cursor.execute(sql)
+        news = cursor.fetchall()
+    except:
+        print "Get Unpush News List Faild"
+    news = list(news)
+    return news
+
+
+def pushNew(new,number):
+    db = pymysql.connect(url,user,pwd,dbName)
+    cursor = db.cursor()
+    i = 1;
+    for p in new:
+        sql = "INSERT INTO news(number,paragraph,content,type) values ('%s',%s,'%s','%s')" % (number,i,p['src'],p['type'])
+        try :
+            cursor.execute(sql)
+            db.commit()
+        except:
+            print 'Push Paragraph Faild'
+
+        i += 1
+    sql = "UPDATE newsInfo SET status = 1 where number = '%s'" % (number)
+    try:
+        cursor.execute(sql)
+        db.commit()
+    except:
+        print "Update status Error"
+
 
 def freshNewsList(title,time,pageUrl,number):
     db = pymysql.connect(url,user,pwd,dbName)
@@ -35,4 +83,4 @@ def test():
 
 
 if __name__ == "__main__":
-    test()
+    getUnpushNews()

@@ -5,9 +5,9 @@ import requests
 from bs4 import BeautifulSoup
 import json
 import util.database
+import os
 
 def getNewsList():
-    newsList = []
     url = "http://xuri.hhit.edu.cn/xxyw.htm"
     r = requests.get(url)
     soup = BeautifulSoup(r.content,"lxml")
@@ -19,33 +19,51 @@ def getNewsList():
         split = re.split(r"/",src)
         number = re.split(r"\.",split[split.__len__()-1])[0]
         util.database.freshNewsList(title,time,src,number)
-        # print time
 
-
-
-
-def getHomepage():
-        url = "http://xuri.hhit.edu.cn/info/1002/28043.htm"
+def pushNews():
+    newslist = util.database.getUnpushNews()
+    for item in newslist:
+        url = item[1]
+        number = item[0]
+        new = []
+        url = "http://xuri.hhit.edu.cn/" + url
         r = requests.get(url)
         soup = BeautifulSoup(r.content, 'lxml')
         content = soup.find("div", class_="v_news_content")
         paragraphs = content.find_all("p")
         for paragraph in paragraphs:
+            p = {}
             imgs = paragraph.find_all("img")
             texts = paragraph.find_all("span")
             if imgs.__len__() > 0:
+                folder = os.path.exists('imgs/' + number)
+                if not folder:
+                    os.makedirs('imgs/' + number)
                 for img in imgs:
                     src = img["src"]
-                    print src
-                    ir = requests.get("http://xuri.hhit.edu.cn"+img["src"])
+                    ir = requests.get("http://xuri.hhit.edu.cn" + img["src"])
                     if ir.status_code == 200:
-                        split = re.split(r'/',src)
-                        imgName = split[split.__len__()-1]
-                        open("imgs/"+imgName,"wb").write(ir.content)
+                        split = re.split(r'/', src)
+                        imgName = split[split.__len__() - 1]
+                        open("imgs/" + number + "/" + imgName, "wb").write(ir.content)
+                        p["type"] = "img"
+                        p['src'] = number + "/" + imgName
+                        new.append(p)
             else:
+                res = ''
                 for text in texts:
-                    print text.string
+                    if text.string:
+                        res = res + text.string
+                print res
+                p['type'] = "text"
+                p['src'] = res
+                new.append(p)
+        util.database.pushNew(new, number)
+        print "news %s push Success" % (number)
 
+
+def getNew(url,number):
+    pass
 
 
 def getExamInfo(stu_id):
@@ -78,13 +96,14 @@ def getCompetionInfo():
     pass
 
 def test():
-    img = requests.get("http://xuri.hhit.edu.cn/__local/D/B9/F4/65A4BA693B5D968CC65B04F44DD_B53AFC6B_5A257.jpg")
-    if img.status_code == 200:
-        open("imgs/text.jpg","wb").write(img.content)
+    folder = os.path.exists('imgs/test')
+    if not folder:
+        os.makedirs('imgs/test')
 
 
 if __name__ == "__main__":
-    getHomepage()
+    # getNew('info/1002/28043.htm','28043')
     # print re.findall(r"\d+-\d+-\d+","    2019-01-29     ")
     # test()
     # getNewsList()
+    pushNews()
