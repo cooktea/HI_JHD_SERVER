@@ -2,11 +2,24 @@
 
 from flask import Flask
 from flask import request
+from flask import Response
 import spider.spid
 import util.MyEmail
+import util.database
 import json
 
 app = Flask(__name__)
+
+@app.route('/getImage/<imgpage>/<imgid>',methods=['POST','GET'])
+def getImage(imgpage,imgid):
+    url = "spider/imgs/"+imgpage+"/"+imgid
+    print url
+    try:
+        image = open(url,'rb')
+        return Response(image, mimetype='image/jpeg')
+    except IOError:
+        return 'Thers is on image'
+
 
 @app.route('/sendmail',methods=['POST','GET'])
 def SendMail():
@@ -22,6 +35,13 @@ def getExamInfo():
     number = request.args["stu_number"]
     js = spider.spid.getExamInfo(number)
     return js
+
+@app.route('/getNewslist',methods=['POST','GET'])
+def getNewsLIST():
+    start = request.args["start"]
+    newslist = util.database.getNewsList(start)
+    print newslist
+    return newslist
 
 if __name__ == '__main__':
     app.run()
