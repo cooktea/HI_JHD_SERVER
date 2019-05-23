@@ -7,6 +7,8 @@ import json
 import util.database
 import os
 
+
+# 获取新闻列表并写入数据库
 def getNewsList():
     url = "http://xuri.hhit.edu.cn/xxyw.htm"
     r = requests.get(url)
@@ -20,6 +22,7 @@ def getNewsList():
         number = re.split(r"\.",split[split.__len__()-1])[0]
         util.database.freshNewsList(title,time,src,number)
 
+# 获取未写入数据库的新闻内容的新闻列表并将新闻内容写入数据库
 def pushNews():
     newslist = util.database.getUnpushNews()
     for item in newslist:
@@ -61,11 +64,7 @@ def pushNews():
         util.database.pushNew(new, number)
         print "news %s push Success" % (number)
 
-
-def getNew(url,number):
-    pass
-
-
+# 获取考试信息
 def getExamInfo(stu_id):
     result = []
     url = "http://exam.hhit.edu.cn/fgquery.do?status=lowquery&tsid="+stu_id
@@ -92,18 +91,9 @@ def getExamInfo(stu_id):
     js = json.dumps(result)
     return js
 
-def getCompetionInfo():
-    pass
-
-def test():
-    folder = os.path.exists('imgs/test')
-    if not folder:
-        os.makedirs('imgs/test')
-
-
 if __name__ == "__main__":
     # getNew('info/1002/28043.htm','28043')
     # print re.findall(r"\d+-\d+-\d+","    2019-01-29     ")
     # test()
-    # getNewsList()
-    pushNews()
+    getNewsList()
+    # pushNews()

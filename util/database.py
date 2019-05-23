@@ -48,10 +48,6 @@ def updateCoverImage():
         except:
             pass
 
-
-
-
-
 def getNewsList(start):
     start = int(start)
     db = pymysql.connect(url,user,pwd,dbName)
