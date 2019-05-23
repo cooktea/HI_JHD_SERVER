@@ -10,6 +10,12 @@ import json
 
 app = Flask(__name__)
 
+@app.route('/getNewPage',methods=['POST','GET'])
+def getNewPage():
+    number = request.args["number"]
+    newPage = util.database.getNewPage(number)
+    return newPage
+
 @app.route('/getImage/<imgpage>/<imgid>',methods=['POST','GET'])
 def getImage(imgpage,imgid):
     url = "spider/imgs/"+imgpage+"/"+imgid
@@ -19,7 +25,6 @@ def getImage(imgpage,imgid):
         return Response(image, mimetype='image/jpeg')
     except IOError:
         return 'Thers is on image'
-
 
 @app.route('/sendmail',methods=['POST','GET'])
 def SendMail():

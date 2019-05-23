@@ -11,6 +11,24 @@ user = "root"
 dbName = "HI_JHD"
 
 
+
+def getNewPage(number):
+    db = pymysql.connect(url,user,pwd,dbName)
+    cursor = db.cursor()
+    gettitle = 'SELECT title FROM newsInfo WHERE number = "%s"' % (number)
+    getcontent = 'SELECT * FROM news WHERE number = "%s"' % (number)
+    result = []
+    try:
+        cursor.execute(gettitle)
+        result = list(cursor.fetchall())
+        cursor.execute(getcontent)
+        result.append(list(cursor.fetchall()))
+    except:
+        pass
+    return json.dumps(result)
+
+
+
 def updateCoverImage():
     db = pymysql.connect(url,user,pwd,dbName)
     cursor = db.cursor()
