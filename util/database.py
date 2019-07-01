@@ -5,10 +5,10 @@ import json
 from datetime import datetime
 
 
-url = "134.175.104.191"
-pwd = "19972279999"
-user = "root"
-dbName = "HI_JHD"
+url = "********"
+pwd = "********"
+user = "*********"
+dbName = "********"
 
 
 
